@@ -1,0 +1,33 @@
+---
+version: '3.8'
+
+services:
+
+  web:
+    build: .
+    command: ./run.sh
+    ports:
+      - 5004:5000
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - OPEN_EXCHANGE_RATES_APP_ID=53dd949918b14e52a0a5e9072882e675
+    depends_on:
+      - redis
+  celery:
+    build: .
+    command: ./run-celery.sh
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - OPEN_EXCHANGE_RATES_APP_ID=53dd949918b14e52a0a5e9072882e675
+    depends_on:
+      - web
+      - redis
+
+  redis:
+    image: redis:6-alpine
